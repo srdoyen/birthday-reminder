@@ -1,13 +1,14 @@
-
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"html/template"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/freshman-tech/news-demo-starter-files/news"
@@ -16,8 +17,22 @@ import (
 
 var tpl = template.Must(template.ParseFiles("index.html"))
 
+type Search struct {
+	Query      string
+	NextPage   int
+	TotalPages int
+	Results    *news.Results
+}
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.Execute(w, nil)
+	buf := &bytes.Buffer{}
+	err := tpl.Execute(buf, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	buf.WriteTo(w)
 }
 
 func searchHandler(newsapi *news.Client) http.HandlerFunc {
@@ -35,8 +50,33 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 			page = "1"
 		}
 
-		fmt.Println("Search Query is: ", searchQuery)
-		fmt.Println("Page is: ", page)
+		results, err := newsapi.FetchEverything(searchQuery, page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		nextPage, err := strconv.Atoi(page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		search := &Search{
+			Query:      searchQuery,
+			NextPage:   nextPage,
+			TotalPages: int(math.Ceil(float64(results.TotalResults / newsapi.PageSize))),
+			Results:    results,
+		}
+
+		buf := &bytes.Buffer{}
+		err = tpl.Execute(buf, search)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		buf.WriteTo(w)
 	}
 }
 
@@ -45,6 +85,7 @@ func main() {
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
@@ -62,7 +103,6 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
-
 	mux.HandleFunc("/search", searchHandler(newsapi))
 	mux.HandleFunc("/", indexHandler)
 	http.ListenAndServe(":"+port, mux)
