@@ -1,5 +1,3 @@
-module github.com/freshman-tech/news-demo-starter-files
+module https://github.com/srdoyen/news-app
 
-go 1.15
-
-require github.com/joho/godotenv v1.4.0 // indirect
+go 1.18
