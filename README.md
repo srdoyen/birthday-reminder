@@ -1,28 +1,20 @@
-# News Demo starter files
+# Birthday Reminder App
 
-Starter files for the News application built with Go. Tutorial:
-https://freshman.tech/web-development-with-go/
-
-Here's what the [completed application](https://freshman-news.herokuapp.com/)
-looks like:
-
-![demo](https://ik.imagekit.io/freshman/news-demo_MrYio9GKlzSi.png)
-
-The code in this repo is meant to be a starting point for anyone following
-along with the tutorial.
+Building a Golang App with Twilio!
 
 ## Prerequisites
 
 You need to have [Go](https://golang.org/dl/) installed on your computer. The
-version used to test the code in the tutorial is **1.15.3**.
+version used to test the code in the tutorial is **1.19.3**.
+
+You also need to login to Twilio and buy a phone number that you can use.
 
 ## Get started
 
 - Clone or download this repository to your filesystem.
 
 ```bash
-$ git clone https://github.com/Freshman-tech/news-demo-starter-files
+$ git clone https://github.com/srdoyen/birthday-reminder
 ```
 
-- `cd` into the project directory and follow along with the [tutorial](https://freshman.tech/web-development-with-go/).
-# news-app
+# birthday-reminder
